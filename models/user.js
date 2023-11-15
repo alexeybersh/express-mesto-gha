@@ -26,6 +26,6 @@ const userSchema = new mongoose.Schema({
       message: "Поле name является обязательным",
     },
   }
-})
+}, {versionKey: false})
 
 module.exports = mongoose.model('user', userSchema);
