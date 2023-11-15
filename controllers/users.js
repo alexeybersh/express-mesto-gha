@@ -95,3 +95,24 @@ module.exports.patchUserMe = ((req, res) => {
       res.status(500).send({ message: 'Произошла ошибка' });
     })
 });
+
+module.exports.patchAvatarMe = ((req, res) => {
+  const { avatar } = req.body;
+
+  User.findOneAndUpdate({avatar: 'https://ya.ru/av.bmp'}, { avatar: avatar }, {
+    new: true,
+    runValidators: true
+  })
+    .then((user) => {
+      if(!user) {
+        throw new Error("NotFound");
+      }
+      res.status(200).send({ data: user})
+    })
+    .catch((error) => {
+      if(error.message === 'NotFound') return res.status(404).send({ message: 'Пользователь не найден!' })
+      if(error.name === 'CastError') return res.status(400).send({ message: 'Передан не валидный id!' })
+      if(error.name === "ValidationError") return res.status(400).send({ message: "Ошибка валидации полей", ...error });
+      res.status(500).send({ message: 'Произошла ошибка' });
+    })
+});
