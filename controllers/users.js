@@ -78,7 +78,7 @@ module.exports.patchAvatar = ((req, res) => {
 
 module.exports.patchUserMe = ((req, res) => {
   const { name, about } = req.body;
-  User.findOneAndUpdate('test', { name: name, about: about}, {
+  User.findOneAndUpdate({name: 'test'}, { name: name, about: about}, {
     new: true,
     runValidators: true
   })
