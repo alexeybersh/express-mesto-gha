@@ -41,12 +41,12 @@ module.exports.patchUser = ((req, res) => {
     new: true,
     runValidators: true
   })
-  .then((user) => {
+    .then((user) => {
     if(!user) {
       throw new Error("NotFound");
     }
-    res.send({ data: user})
-  })
+    res.status(200).send({ data: user})
+    })
     .catch((error) => {
       if(error.message === 'NotFound') return res.status(404).send({ message: 'Пользователь не найден!' })
       if(error.name === 'CastError') return res.status(400).send({ message: 'Передан не валидный id!' })
@@ -66,7 +66,7 @@ module.exports.patchAvatar = ((req, res) => {
       if(!user) {
         throw new Error("NotFound");
       }
-      res.send({ data: user})
+      res.status(200).send({ data: user})
     })
     .catch((error) => {
       if(error.message === 'NotFound') return res.status(404).send({ message: 'Пользователь не найден!' })
