@@ -37,6 +37,7 @@ module.exports.getUserById = ((req, res) => {
 
 module.exports.patchUser = ((req, res) => {
   const { name, about } = req.body;
+
   User.findByIdAndUpdate(req.params.id, { name: name, about: about}, {
     new: true,
     runValidators: true
@@ -78,7 +79,8 @@ module.exports.patchAvatar = ((req, res) => {
 
 module.exports.patchUserMe = ((req, res) => {
   const { name, about } = req.body;
-  User.findOneAndUpdate({name: 'test'}, { name: name, about: about}, {
+
+  User.findOneAndUpdate({ name: 'test' }, { name: name, about: about}, {
     new: true,
     runValidators: true
   })
@@ -99,7 +101,7 @@ module.exports.patchUserMe = ((req, res) => {
 module.exports.patchAvatarMe = ((req, res) => {
   const { avatar } = req.body;
 
-  User.findOneAndUpdate({avatar: 'https://ya.ru/av.bmp'}, { avatar: avatar }, {
+  User.findOneAndUpdate({ name: 'test' }, { avatar: avatar }, {
     new: true,
     runValidators: true
   })

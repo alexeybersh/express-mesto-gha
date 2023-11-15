@@ -10,12 +10,12 @@ userRouter.get('/:id', getUserById);
 
 userRouter.post('/', createUser);
 
-userRouter.patch('/me/:id', patchUser);
-
 userRouter.patch('/me', patchUserMe);
+
+userRouter.patch('/me/avatar', patchAvatarMe);
 
 userRouter.patch('/me/avatar/:id', patchAvatar);
 
-userRouter.patch('/me/avatar', patchAvatarMe);
+userRouter.patch('/me/:id', patchUser);
 
 module.exports = userRouter;
