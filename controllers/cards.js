@@ -24,7 +24,7 @@ module.exports.deleteCard = ((req, res) => {
   Card.findByIdAndDelete(req.params.id).orFail()
     .then((card) => res.status(STATUS_OK).send({ data: card }))
     .catch((error) => {
-      if(error.message === 'NotFound') return res.status(NOT_FOUND).send({ message: 'Карточка не найдена!' })
+      if(error.message === 'ValidationError') return res.status(NOT_FOUND).send({ message: 'Карточка не найдена!' })
       if(error.name === 'CastError') return res.status(BAD_REQUEST).send({ message: 'Передан не валидный id!' })
       res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     })
@@ -38,7 +38,7 @@ module.exports.addLikes = ((req, res) => {
   }).orFail()
     .then((card) => res.status(STATUS_OK).send({ data: card }))
     .catch((error) => {
-      if(error.message === 'NotFound') return res.status(NOT_FOUND).send({ message: 'Карточка не найдена!' })
+      if(error.message === 'ValidationError') return res.status(NOT_FOUND).send({ message: 'Карточка не найдена!' })
       if(error.name === 'CastError') return res.status(BAD_REQUEST).send({ message: 'Передан не валидный id!' })
       res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     })
@@ -50,7 +50,7 @@ module.exports.deleteLikes = ((req, res) => {
   }).orFail()
     .then((card) => res.status(STATUS_OK).send({ data: card }))
     .catch((error) => {
-      if(error.message === 'NotFound') return res.status(NOT_FOUND).send({ message: 'Карточка не найдена!' })
+      if(error.message === 'ValidationError') return res.status(NOT_FOUND).send({ message: 'Карточка не найдена!' })
       if(error.name === 'CastError') return res.status(BAD_REQUEST).send({ message: 'Передан не валидный id!' })
       res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     })
