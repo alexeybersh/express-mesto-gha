@@ -29,12 +29,12 @@ const cardSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'user',
-      default: {}
+      default: []
     }
   ],
   createdAt: {
     type: Date,
-    default: Date.now()
+    default: Date.now
   }
 }, {versionKey: false})
 

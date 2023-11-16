@@ -1,120 +1,62 @@
-const User =  require("../models/user")
-
-const ERROR_CODE_DUPLICATE_MONGO = 11000;
+const User = require('../models/user');200
+const { STATUS_OK, BAD_REQUEST, NOT_FOUND, CONFLICT, ERROR_SERVER, ERROR_CODE_DUPLICATE_MONGO } = require('../utils/errors')
 
 module.exports.createUser = ((req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then(user => res.send({ data: user }))
+    .then((user) => res.status(STATUS_OK).send({ data: user }))
     .catch((error) => {
-      if (error.name === "ValidationError") return res.status(400).send({ message: "Ошибка валидации полей", ...error });
-      if (error.code === ERROR_CODE_DUPLICATE_MONGO) return res.status(409).send({ message: "Пользователь уже существует!" });
-      res.status(500).send({ message: 'Произошла ошибка' })
+      if (error.name === 'ValidationError') return res.status(BAD_REQUEST).send({ message: 'Ошибка валидации полей', ...error });
+      if (error.code === ERROR_CODE_DUPLICATE_MONGO) return res.status(CONFLICT).send({ message: 'Пользователь уже существует!' });
+      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
 });
 
 module.exports.getUsers = ((req, res) => {
   User.find({})
-    .then(users => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .then((users) => res.send({ data: users }))
+    .catch(() => res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' }));
 });
 
 module.exports.getUserById = ((req, res) => {
-  User.findById(req.params.id)
-    .then((user) => {
-      if(!user) {
-        throw new Error("NotFound");
-      }
-      res.send({ data: user})
-    })
+  User.findById(req.params.id).orFail()
+    .then((user) => res.status(STATUS_OK).send({ data: user }))
     .catch((error) => {
-      if(error.message === 'NotFound') return res.status(404).send({ message: 'Пользователь не найден!' })
-      if(error.name === 'CastError') return res.status(400).send({ message: 'Передан не валидный id!' })
-      res.status(500).send({ message: 'Произошла ошибка' });
-    })
+      if (error.name === 'DocumentNotFoundError') return res.status(NOT_FOUND).send({ message: 'Пользователь не найден!' });
+      if (error.name === 'CastError') return res.status(BAD_REQUEST).send({ message: 'Передан не валидный id!' });
+      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
+    });
 });
 
 module.exports.patchUser = ((req, res) => {
   const { name, about } = req.body;
 
-  User.findByIdAndUpdate(req.params.id, { name: name, about: about}, {
+  User.findByIdAndUpdate(req.user._id, { name, about }, {
     new: true,
-    runValidators: true
-  })
-    .then((user) => {
-    if(!user) {
-      throw new Error("NotFound");
-    }
-    res.status(200).send({ data: user})
-    })
+    runValidators: true,
+  }).orFail()
+    .then((user) => res.status(STATUS_OK).send({ data: user }))
     .catch((error) => {
-      if(error.message === 'NotFound') return res.status(404).send({ message: 'Пользователь не найден!' })
-      if(error.name === 'CastError') return res.status(400).send({ message: 'Передан не валидный id!' })
-      if(error.name === "ValidationError") return res.status(400).send({ message: "Ошибка валидации полей", ...error });
-      res.status(500).send({ message: 'Произошла ошибка' });
-    })
+      if (error.message === 'DocumentNotFoundError') return res.status(NOT_FOUND).send({ message: 'Пользователь не найден!' });
+      if (error.name === 'CastError') return res.status(BAD_REQUEST).send({ message: 'Передан не валидный id!' });
+      if (error.name === 'ValidationError') return res.status(BAD_REQUEST).send({ message: 'Ошибка валидации полей', ...error });
+      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
+    });
 });
 
 module.exports.patchAvatar = ((req, res) => {
   const { avatar } = req.body;
 
-  User.findByIdAndUpdate(req.params.id, { avatar: avatar }, {
+  User.findByIdAndUpdate(req.user._id, { avatar }, {
     new: true,
-    runValidators: true
-  })
-    .then((user) => {
-      if(!user) {
-        throw new Error("NotFound");
-      }
-      res.status(200).send({ data: user})
-    })
+    runValidators: true,
+  }).orFail()
+    .then((user) => res.status(STATUS_OK).send({ data: user }))
     .catch((error) => {
-      if(error.message === 'NotFound') return res.status(404).send({ message: 'Пользователь не найден!' })
-      if(error.name === 'CastError') return res.status(400).send({ message: 'Передан не валидный id!' })
-      if(error.name === "ValidationError") return res.status(400).send({ message: "Ошибка валидации полей", ...error });
-      res.status(500).send({ message: 'Произошла ошибка' });
-    })
-});
-
-module.exports.patchUserMe = ((req, res) => {
-  const { name, about } = req.body;
-
-  User.findOneAndUpdate({ name: 'test' }, { name: name, about: about}, {
-    new: true,
-    runValidators: true
-  })
-    .then((user) => {
-    if(!user) {
-      throw new Error("NotFound");
-    }
-    res.status(200).send({ data: user})
-    })
-    .catch((error) => {
-      if(error.message === 'NotFound') return res.status(404).send({ message: 'Пользователь не найден!' })
-      if(error.name === 'CastError') return res.status(400).send({ message: 'Передан не валидный id!' })
-      if(error.name === "ValidationError") return res.status(400).send({ message: "Ошибка валидации полей", ...error });
-      res.status(500).send({ message: 'Произошла ошибка' });
-    })
-});
-
-module.exports.patchAvatarMe = ((req, res) => {
-  const { avatar } = req.body;
-
-  User.findOneAndUpdate({ name: 'test' }, { avatar: avatar }, {
-    new: true,
-    runValidators: true
-  })
-    .then((user) => {
-      if(!user) {
-        throw new Error("NotFound");
-      }
-      res.status(200).send({ data: user})
-    })
-    .catch((error) => {
-      if(error.message === 'NotFound') return res.status(404).send({ message: 'Пользователь не найден!' })
-      if(error.name === 'CastError') return res.status(400).send({ message: 'Передан не валидный id!' })
-      if(error.name === "ValidationError") return res.status(400).send({ message: "Ошибка валидации полей", ...error });
-      res.status(500).send({ message: 'Произошла ошибка' });
-    })
+      if (error.message === 'DocumentNotFoundError') return res.status(NOT_FOUND).send({ message: 'Пользователь не найден!' });
+      if (error.name === 'CastError') return res.status(BAD_REQUEST).send({ message: 'Передан не валидный id!' });
+      if (error.name === 'ValidationError') return res.status(BAD_REQUEST).send({ message: 'Ошибка валидации полей', ...error });
+      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
+    });
 });
