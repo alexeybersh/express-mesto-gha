@@ -3,10 +3,11 @@ const { STATUS_OK, BAD_REQUEST, NOT_FOUND, ERROR_SERVER } = require('../utils/er
 
 module.exports.createCard = ((req, res) => {
   owner = req.user._id;
+
   const { name, link} = req.body;
 
   Card.create({ name, link, owner})
-    .then(card => res.ststus(STATUS_OK).send({ data: card }))
+    .then(card => res.status(STATUS_OK).send({ data: card }))
     .catch((error) => {
       if (error.name === "ValidationError") return res.status(BAD_REQUEST).send({ message: "Ошибка валидации полей", ...error });
       res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' })
@@ -15,7 +16,7 @@ module.exports.createCard = ((req, res) => {
 
 module.exports.getCards = ((req, res) => {
   Card.find({})
-    .then(cards => res.ststus(STATUS_OK).send({ data: cards }))
+    .then(cards => res.status(STATUS_OK).send({ data: cards }))
     .catch(() => res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' }));
 });
 
