@@ -1,14 +1,15 @@
-const User = require('../models/user');200
-const { STATUS_OK, BAD_REQUEST, NOT_FOUND, CONFLICT, ERROR_SERVER, ERROR_CODE_DUPLICATE_MONGO } = require('../utils/errors')
+const User = require('../models/user');
+const { MongoServerError } = require('mongodb');
+const { STATUS_OK, CREATED, BAD_REQUEST, NOT_FOUND, CONFLICT, ERROR_SERVER, ERROR_CODE_DUPLICATE_MONGO } = require('../utils/errors')
 
 module.exports.createUser = ((req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => res.status(STATUS_OK).send({ data: user }))
+    .then((user) => res.status(CREATED).send({ data: user }))
     .catch((error) => {
       if (error.name === 'ValidationError') return res.status(BAD_REQUEST).send({ message: 'Ошибка валидации полей', ...error });
-      if (error.code === ERROR_CODE_DUPLICATE_MONGO) return res.status(CONFLICT).send({ message: 'Пользователь уже существует!' });
+      if (error instanceof MongoServerError && error.code === ERROR_CODE_DUPLICATE_MONGO) return res.status(CONFLICT).send({ message: 'Пользователь уже существует!' });
       res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
 });
