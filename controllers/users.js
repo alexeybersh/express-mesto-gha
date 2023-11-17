@@ -4,7 +4,7 @@ const { STATUS_OK, CREATED, BAD_REQUEST, NOT_FOUND, CONFLICT, ERROR_SERVER, ERRO
 
 module.exports.createUser = ((req, res) => {
   const { name, about, avatar } = req.body;
-
+console.log(CREATED);
   User.create({ name, about, avatar })
     .then((user) => res.status(CREATED).send({ data: user }))
     .catch((error) => {
