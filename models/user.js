@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     match: [URLRegExpression, 'Некорректная ссылка'],
-    default: "https://www.rgo.ru/sites/default/files/styles/head_image_article/public/1034295-e1477344635669-1.jpg?itok=4U4Dw9en"
+    default: "https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png"
   }
 }, {versionKey: false})
 

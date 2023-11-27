@@ -27,7 +27,7 @@ module.exports.getUsers = ((req, res, next) => {
     })
 });
 
-module.exports.getUserById = ((req, res, next, id) => {
+module.exports.getUser = ((req, res, next, id) => {
   User.findById(id).orFail()
     .then((user) => res.status(STATUS_OK).send({ data: user }))
     .catch ((error) => {
@@ -38,6 +38,10 @@ module.exports.getUserById = ((req, res, next, id) => {
 
 module.exports.getCurrentUser = ((req, res, next) => {
   module.exports.getUserById(req, res, next, req.user._id)
+})
+
+module.exports.getUserById = ((req, res, next) => {
+  module.exports.getUser(req, res, next, req.params.id)
 })
 
 module.exports.patchUser = ((req, res) => {
