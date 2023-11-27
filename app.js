@@ -2,7 +2,8 @@ const express = require('express');
 const { connect } = require('mongoose');
 const router = require('./routes');
 const { createUser, login } = require('./controllers/users');
-const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi, errors } = require('celebrate');
+const { URLRegExpression } = require('./utils/constants.js');
 const { PORT = 3000, MONGO_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env
 
 const app = express();
@@ -22,14 +23,20 @@ app.post('/signin', celebrate({
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8)
+    password: Joi.string().required().min(8),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().required().pattern(new RegExp(URLRegExpression))
   }),
 }), createUser);
 
 app.use(router);
 
+app.use(errors());
 
 app.use((err, req, res, next) => {
+  console.log(err);
+  if(err)
   res.status(err.statusCode).send({ message: err.message });
 });
 
