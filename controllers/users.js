@@ -37,7 +37,7 @@ module.exports.getUser = ((req, res, next, id) => {
 
 
 module.exports.getCurrentUser = ((req, res, next) => {
-  module.exports.getUserById(req, res, next, req.user._id)
+  module.exports.getUser(req, res, next, req.user._id)
 })
 
 module.exports.getUserById = ((req, res, next) => {

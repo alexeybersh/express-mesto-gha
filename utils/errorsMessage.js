@@ -1,5 +1,5 @@
 const { MongoServerError } = require('mongodb');
-const { BAD_REQUEST, UNAUTHORIZED, NOT_FOUND, CONFLICT, ERROR_SERVER, ERROR_CODE_DUPLICATE_MONGO } = require('../utils/errorsStatus')
+const { BAD_REQUEST, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, CONFLICT, ERROR_SERVER, ERROR_CODE_DUPLICATE_MONGO } = require('../utils/errorsStatus')
 
 module.exports.errorMessage= (error, type = '') => {
   if (error.name === 'ValidationError') {
@@ -13,7 +13,7 @@ module.exports.errorMessage= (error, type = '') => {
   } else if (error.message === 'Неправильные почта или пароль') {
     return err = { statusCode: UNAUTHORIZED, message: 'Неправильные почта или пароль!' };
   } else if (error.message === 'Удаление не своей карточки') {
-  return err = { statusCode: UNAUTHORIZED, message: 'Нельзя удалять карточки других пользователей' };
+  return err = { statusCode: FORBIDDEN, message: 'Нельзя удалять карточки других пользователей' };
   } else {
     return err = { statusCode: ERROR_SERVER, message: 'Произошла ошибка' };
   }
