@@ -1,57 +1,59 @@
 const Card =  require("../models/card")
-const { STATUS_OK, CREATED, BAD_REQUEST, NOT_FOUND, ERROR_SERVER } = require('../utils/errors')
+const { STATUS_OK, CREATED } = require('../utils/errorsStatus')
+const { errorMessage } = require('../utils/errorsMessage');
 
-module.exports.createCard = ((req, res) => {
+module.exports.createCard = ((req, res, next) => {
   owner = req.user._id;
 
   const { name, link} = req.body;
 
   Card.create({ name, link, owner})
     .then(card => res.status(CREATED).send({ data: card }))
-    .catch((error) => {
-      if (error.name === "ValidationError") return res.status(BAD_REQUEST).send({ message: "Ошибка валидации полей", ...error });
-      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' })
-    });
-});
-
-module.exports.getCards = ((req, res) => {
-  Card.find({})
-    .then(cards => res.status(STATUS_OK).send({ data: cards }))
-    .catch(() => res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' }));
-});
-
-module.exports.deleteCard = ((req, res) => {
-  Card.findByIdAndDelete(req.params.id).orFail()
-    .then((card) => res.status(STATUS_OK).send({ data: card }))
-    .catch((error) => {
-      if(error.name === 'DocumentNotFoundError') return res.status(NOT_FOUND).send({ message: 'Карточка не найдена!' })
-      if(error.name === 'CastError') return res.status(BAD_REQUEST).send({ message: 'Передан не валидный id!' })
-      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
+    .catch ((error) => {
+      next(errorMessage(error))
     })
 });
 
-module.exports.addLikes = ((req, res) => {
+module.exports.getCards = ((req, res, next) => {
+  Card.find({})
+    .then(cards => res.status(STATUS_OK).send({ data: cards }))
+    .catch ((error) => {
+      next(errorMessage(error))
+    })
+});
+
+module.exports.deleteCard = ((req, res, next) => {
+  Card.findById(req.params.id).orFail()
+    .then((card) => {
+      if(card.owner != req.user._id) {
+        throw new Error('Удаление не своей карточки');
+      }
+      Card.deleteOne({ _id: req.params.id }).orFail()
+        .then((card) => res.status(STATUS_OK).send({ message: ' Карточка удалена!' }))
+    })
+    .catch ((error) => {
+      next(errorMessage(error))
+    })
+});
+
+module.exports.addLikes = ((req, res, next) => {
   userId = req.user._id;
 
   Card.findByIdAndUpdate(req.params.id, { $addToSet: { likes: userId } }, {
     new: true
   }).orFail()
     .then((card) => res.status(STATUS_OK).send({ data: card }))
-    .catch((error) => {
-      if(error.name === 'DocumentNotFoundError') return res.status(NOT_FOUND).send({ message: 'Карточка не найдена!' })
-      if(error.name === 'CastError') return res.status(BAD_REQUEST).send({ message: 'Передан не валидный id!' })
-      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
+    .catch ((error) => {
+      next(errorMessage(error))
     })
 });
 
-module.exports.deleteLikes = ((req, res) => {
+module.exports.deleteLikes = ((req, res, next) => {
   Card.findByIdAndUpdate(req.params.id, { $pull: { likes: userId } }, {
     new: true
   }).orFail()
     .then((card) => res.status(STATUS_OK).send({ data: card }))
-    .catch((error) => {
-      if(error.name === 'DocumentNotFoundError') return res.status(NOT_FOUND).send({ message: 'Карточка не найдена!' })
-      if(error.name === 'CastError') return res.status(BAD_REQUEST).send({ message: 'Передан не валидный id!' })
-      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
+    .catch ((error) => {
+      next(errorMessage(error))
     })
 });

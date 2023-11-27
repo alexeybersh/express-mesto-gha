@@ -1,34 +1,44 @@
 const User = require('../models/user');
 const { MongoServerError } = require('mongodb');
-const { STATUS_OK, CREATED, BAD_REQUEST, NOT_FOUND, CONFLICT, ERROR_SERVER, ERROR_CODE_DUPLICATE_MONGO } = require('../utils/errors')
+const { genToken } = require('../utils/jwt')
+const bcrypt = require('bcryptjs');
+const { errorMessage } = require('../utils/errorsMessage');
 
-module.exports.createUser = ((req, res) => {
-  const { name, about, avatar } = req.body;
-console.log(CREATED);
-  User.create({ name, about, avatar })
-    .then((user) => res.status(CREATED).send({ data: user }))
-    .catch((error) => {
-      if (error.name === 'ValidationError') return res.status(BAD_REQUEST).send({ message: 'Ошибка валидации полей', ...error });
-      if (error instanceof MongoServerError && error.code === ERROR_CODE_DUPLICATE_MONGO) return res.status(CONFLICT).send({ message: 'Пользователь уже существует!' });
-      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
-    });
+const { STATUS_OK, CREATED } = require('../utils/errorsStatus')
+
+module.exports.createUser = ((req, res, next) => {
+  const { password,} = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      ...req.body,
+      password: hash,
+    }))
+    .then((user) => res.status(CREATED).send({ _id: user._id, email: user.email, name: user.name, about: user.about, avatar: user.avatar }))
+    .catch ((error) => {
+      next(errorMessage(error))
+    })
 });
 
-module.exports.getUsers = ((req, res) => {
+module.exports.getUsers = ((req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' }));
+    .catch ((error) => {
+      next(errorMessage(error))
+    })
 });
 
-module.exports.getUserById = ((req, res) => {
-  User.findById(req.params.id).orFail()
+module.exports.getUserById = ((req, res, next, id) => {
+  User.findById(id).orFail()
     .then((user) => res.status(STATUS_OK).send({ data: user }))
-    .catch((error) => {
-      if (error.name === 'DocumentNotFoundError') return res.status(NOT_FOUND).send({ message: 'Пользователь не найден!' });
-      if (error.name === 'CastError') return res.status(BAD_REQUEST).send({ message: 'Передан не валидный id!' });
-      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
-    });
+    .catch ((error) => {
+      next(errorMessage(error, 'user'))
+    })
 });
+
+
+module.exports.getCurrentUser = ((req, res, next) => {
+  module.exports.getUserById(req, res, next, req.user._id)
+})
 
 module.exports.patchUser = ((req, res) => {
   const { name, about } = req.body;
@@ -38,15 +48,12 @@ module.exports.patchUser = ((req, res) => {
     runValidators: true,
   }).orFail()
     .then((user) => res.status(STATUS_OK).send({ data: user }))
-    .catch((error) => {
-      if (error.message === 'DocumentNotFoundError') return res.status(NOT_FOUND).send({ message: 'Пользователь не найден!' });
-      if (error.name === 'CastError') return res.status(BAD_REQUEST).send({ message: 'Передан не валидный id!' });
-      if (error.name === 'ValidationError') return res.status(BAD_REQUEST).send({ message: 'Ошибка валидации полей', ...error });
-      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
-    });
+    .catch ((error) => {
+      next(errorMessage(error, 'user'))
+    })
 });
 
-module.exports.patchAvatar = ((req, res) => {
+module.exports.patchAvatar = ((req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar }, {
@@ -54,10 +61,18 @@ module.exports.patchAvatar = ((req, res) => {
     runValidators: true,
   }).orFail()
     .then((user) => res.status(STATUS_OK).send({ data: user }))
-    .catch((error) => {
-      if (error.message === 'DocumentNotFoundError') return res.status(NOT_FOUND).send({ message: 'Пользователь не найден!' });
-      if (error.name === 'CastError') return res.status(BAD_REQUEST).send({ message: 'Передан не валидный id!' });
-      if (error.name === 'ValidationError') return res.status(BAD_REQUEST).send({ message: 'Ошибка валидации полей', ...error });
-      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
-    });
+    .catch ((error) => {
+      next(errorMessage(error, 'user'))
+    })
 });
+
+module.exports.login = ((req, res, next) => {
+  const { email, password } = req.body;
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      res.status(STATUS_OK).send({ token: genToken({ _id: user._id }) })
+    })
+    .catch ((error) => {
+      next(errorMessage(error))
+    })
+})

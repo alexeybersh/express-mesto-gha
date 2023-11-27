@@ -1,17 +1,38 @@
 const { Router } = require('express');
+const { celebrate, Joi } = require('celebrate');
+const { URLRegExpression } = require('../utils/constants.js');
+
+
 
 const { createCard, getCards, deleteCard, addLikes, deleteLikes } = require('../controllers/cards');
 
-const cerdRouter = Router();
+const cardRouter = Router();
 
-cerdRouter.get('/', getCards);
+cardRouter.get('/', getCards);
 
-cerdRouter.delete('/:id', deleteCard);
+cardRouter.delete('/:id', celebrate({
+  params: Joi.object().keys({
+    id: Joi.string().required().length(24).alphanum()
+  }),
+}), deleteCard);
 
-cerdRouter.post('/', createCard);
+cardRouter.post('/', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required().pattern(new RegExp(URLRegExpression))
+  }),
+}), createCard);
 
-cerdRouter.put('/:id/likes', addLikes);
+cardRouter.put('/:id/likes', celebrate({
+  params: Joi.object().keys({
+    id: Joi.string().length(24).alphanum()
+  }),
+}), addLikes);
 
-cerdRouter.delete('/:id/likes', deleteLikes);
+cardRouter.delete('/:id/likes', celebrate({
+  params: Joi.object().keys({
+    id: Joi.string().length(24).alphanum()
+  }),
+}), deleteLikes);
 
-module.exports = cerdRouter;
+module.exports = cardRouter;

@@ -4,15 +4,20 @@
   "version": "1.0.0",
   "type": "CommonJS",
   "scripts": {
-    "start": "node app.js",
+    "start": "set NODE_ENV=dev && node app.js",
     "dev": "nodemon app.js",
     "lint": "npx eslint"
   },
   "dependencies": {
     "-": "^0.0.1",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "celebrate": "^15.0.3",
     "d": "^1.0.1",
     "express": "^4.18.2",
-    "mongoose": "^8.0.0"
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.0",
+    "validator": "^13.11.0"
   },
   "description": "[![Tests](../../actions/workflows/tests-13-sprint.yml/badge.svg)](../../actions/workflows/tests-13-sprint.yml) [![Tests](../../actions/workflows/tests-14-sprint.yml/badge.svg)](../../actions/workflows/tests-14-sprint.yml)\r # Проект Mesto фронтенд + бэкенд",
   "main": "app.js",
