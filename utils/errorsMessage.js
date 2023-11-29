@@ -13,9 +13,10 @@ const {
 } = require('./errorsStatus');
 
 module.exports.errorMessage = (error, type = '') => {
+  console.log(error);
   if (error.name === 'ValidationError') {
     return err = { statusCode: BAD_REQUEST, message: 'Ошибка валидации полей' };
-  } if (error instanceof MongoServerError && error.code === ERROR_CODE_DUPLICATE_MONGO) {
+  } if (error instanceof MongoServerError || error.code === ERROR_CODE_DUPLICATE_MONGO) {
     return err = { statusCode: CONFLICT, message: 'Пользователь уже существует!' };
   } if (error.name === 'CastError') {
     return err = { statusCode: BAD_REQUEST, message: 'Передан не валидный id!' };
