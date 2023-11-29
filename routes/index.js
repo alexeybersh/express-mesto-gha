@@ -1,16 +1,21 @@
 const { Router } = require('express');
-const { NOT_FOUND } = require('../utils/errorsStatus')
-const { auth } = require('../middlewares/auth')
+
+const { errorMessage } = require('../utils/errorsMessage');
+
+const { auth } = require('../middlewares/auth');
+
 const userRouter = require('./users');
+
 const cardRouter = require('./cards');
 
 const router = Router();
 
-router.use('/users', auth, userRouter);
-router.use('/cards', auth, cardRouter);
-router.use('*', (req, res) => {
-  res.status(NOT_FOUND).send({ message: 'Запрашиваемый ресурс не найден' });
-});
+router.use(auth);
 
+router.use('/users', userRouter);
 
-module.exports =  router;
+router.use('/cards', cardRouter);
+
+router.use('*', (req, res, next) => next(errorMessage({ name: 'PageNotFound' })));
+
+module.exports = router;

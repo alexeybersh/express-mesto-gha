@@ -5,16 +5,16 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: {
       value: true,
-      message: "Поле name является обязательным",
+      message: 'Поле name является обязательным',
     },
-    minlength: [2, "Минимальная длинна 2 символа"],
-    maxlength: [30, "Максимальная длинна 30 символов"],
+    minlength: [2, 'Минимальная длинна 2 символа'],
+    maxlength: [30, 'Максимальная длинна 30 символов'],
   },
   link: {
     type: String,
     required: {
       value: true,
-      message: "Поле name является обязательным",
+      message: 'Поле name является обязательным',
     },
   },
   owner: {
@@ -22,20 +22,20 @@ const cardSchema = new mongoose.Schema({
     ref: 'user',
     required: {
       value: true,
-      message: "Поле name является обязательным",
+      message: 'Поле name является обязательным',
     },
   },
   likes: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'user',
-      default: []
-    }
+      default: [],
+    },
   ],
   createdAt: {
     type: Date,
-    default: Date.now
-  }
-}, {versionKey: false})
+    default: Date.now,
+  },
+}, { versionKey: false });
 
 module.exports = mongoose.model('card', cardSchema);

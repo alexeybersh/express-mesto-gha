@@ -1,42 +1,41 @@
 const express = require('express');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+const { errors } = require('celebrate');
 const { connect } = require('mongoose');
 const router = require('./routes');
 const { createUser, login } = require('./controllers/users');
-const { celebrate, Joi, errors } = require('celebrate');
-const { URLRegExpression } = require('./utils/constants.js');
-const { PORT = 3000, MONGO_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env
+const { userValidateAuth } = require('./middlewares/userValidate');
+const { errorHandler } = require('./middlewares/error-handler');
+
+const { PORT = 3000, MONGO_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
 const app = express();
+
+app.use(
+  rateLimit({
+    windowMs: 60 * 1000,
+    max: 100,
+  }),
+);
+
+app.use(helmet());
 
 connect(MONGO_URL);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8)
-  }),
-}), login);
+app.post('/signin', userValidateAuth, login);
 
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(new RegExp(URLRegExpression))
-  }),
-}), createUser);
+app.post('/signup', userValidateAuth, createUser);
 
 app.use(router);
 
 app.use(errors());
 
-app.use((err, req, res, next) => {
-  res.status(err.statusCode).send({ message: err.message });
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
 });
