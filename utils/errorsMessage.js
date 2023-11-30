@@ -13,7 +13,6 @@ const {
 } = require('./errorsStatus');
 
 module.exports.errorMessage = (error, type = '') => {
-  console.log(error);
   if (error.name === 'ValidationError') {
     return err = { statusCode: BAD_REQUEST, message: 'Ошибка валидации полей' };
   } if (error instanceof MongoServerError || error.code === ERROR_CODE_DUPLICATE_MONGO) {
