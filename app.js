@@ -24,7 +24,7 @@ app.use(
 
 app.use(helmet());
 
-app.use(cors);
+// app.use(cors);
 
 connect(MONGO_URL);
 
