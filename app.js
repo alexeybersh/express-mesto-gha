@@ -31,9 +31,9 @@ connect(MONGO_URL);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.post('/signin', userValidateAuth, login);
+app.post('api/signin', userValidateAuth, login);
 
-app.post('/signup', userValidateAuth, createUser);
+app.post('api/signup', userValidateAuth, createUser);
 
 app.use(router);
 
