@@ -1,7 +1,7 @@
 const express = require('express');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const { cors } = require('cors');
+// const { cors } = require('cors');
 
 const { errors } = require('celebrate');
 const { connect } = require('mongoose');
@@ -23,7 +23,7 @@ app.use(
 
 app.use(helmet());
 
-app.use(cors);
+// app.use(cors);
 
 connect(MONGO_URL);
 
