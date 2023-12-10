@@ -1,8 +1,7 @@
 const express = require('express');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-
-const cors = require('cors');
+const { cors } = require('cors');
 
 const { errors } = require('celebrate');
 const { connect } = require('mongoose');
@@ -31,9 +30,9 @@ connect(MONGO_URL);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.post('/api/signin', userValidateAuth, login);
+app.post('/signin', userValidateAuth, login);
 
-app.post('/api/signup', userValidateAuth, createUser);
+app.post('/signup', userValidateAuth, createUser);
 
 app.use(router);
 

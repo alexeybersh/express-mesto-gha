@@ -12,9 +12,9 @@ const router = Router();
 
 router.use(auth);
 
-router.use('/api/users', userRouter);
+router.use('/users', userRouter);
 
-router.use('/api/cards', cardRouter);
+router.use('/cards', cardRouter);
 
 router.use('*', (req, res, next) => next(errorMessage({ name: 'PageNotFound' })));
 
