@@ -24,16 +24,16 @@ app.use(
 
 app.use(helmet());
 
-// app.use(cors);
+app.use(cors);
 
 connect(MONGO_URL);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.post('api/signin', userValidateAuth, login);
+app.post('/api/signin', userValidateAuth, login);
 
-app.post('api/signup', userValidateAuth, createUser);
+app.post('/api/signup', userValidateAuth, createUser);
 
 app.use(router);
 
